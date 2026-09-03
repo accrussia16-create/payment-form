@@ -1,429 +1,1234 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Verification</title>
-  <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #182230;
-      --muted: #667085;
-      --border: #d9dee8;
-      --primary: #146c43;
-      --primary-dark: #0f5132;
-      --success-bg: #ecfdf3;
-      --success: #067647;
-      --error-bg: #fef3f2;
-      --error: #b42318;
-    }
 
-    * { box-sizing: border-box; }
+  <title>Payment Verification</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
+      color: #222;
     }
 
-    .wrap {
-      width: min(100% - 28px, 520px);
-      margin: 32px auto;
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
     }
 
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
+      background: #ffffff;
+      border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 8px 30px rgba(16, 24, 40, 0.06);
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
     }
 
-    h1 {
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
       margin: 0 0 8px;
-      font-size: 25px;
-      line-height: 1.2;
+      font-size: 27px;
     }
 
-    .intro {
-      color: var(--muted);
-      margin: 0 0 22px;
+    .header p {
+      margin: 0;
+      color: #666;
       line-height: 1.5;
     }
 
-    .payment-box {
-      border: 1px solid #b7dec9;
-      background: #f0fdf4;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 22px;
+    .section {
+      margin-bottom: 25px;
     }
 
-    .payment-row {
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    /* Packages */
+
+    .packages {
+      display: grid;
+      gap: 12px;
+    }
+
+    .package-option {
+      position: relative;
+    }
+
+    .package-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .package-label {
       display: flex;
       justify-content: space-between;
-      gap: 14px;
-      padding: 8px 0;
-      border-bottom: 1px solid #d9f0e1;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s;
     }
 
-    .payment-row:last-child { border-bottom: 0; }
-
-    .label {
-      color: var(--muted);
-      font-size: 13px;
+    .package-label:hover {
+      border-color: #777;
     }
 
-    .value {
-      font-weight: 700;
-      text-align: right;
-      overflow-wrap: anywhere;
+    .package-option input:checked + .package-label {
+      border-color: #111;
+      background: #f2f2f2;
     }
 
-    label {
+    .package-name {
+      font-weight: bold;
+    }
+
+    .package-price {
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    /* Payment methods */
+
+    .payment-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .payment-option {
+      position: relative;
+    }
+
+    .payment-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .payment-label {
       display: block;
-      margin: 17px 0 7px;
-      font-weight: 650;
-      font-size: 14px;
+      text-align: center;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .payment-option input:checked + .payment-label {
+      border-color: #111;
+      background: #f2f2f2;
+    }
+
+    /* Account box */
+
+    .account-box {
+      display: none;
+      margin-top: 15px;
+      padding: 18px;
+      border-radius: 12px;
+      background: #f7f7f7;
+      border: 1px solid #ddd;
+    }
+
+    .account-box.show {
+      display: block;
+    }
+
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 7px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .account-row:last-child {
+      border-bottom: none;
+    }
+
+    .account-label {
+      color: #666;
+    }
+
+    .account-value {
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .amount {
+      font-size: 20px;
+    }
+
+    /* Inputs */
+
+    label.input-label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 7px;
     }
 
     input[type="text"],
     input[type="tel"],
-    textarea {
+    textarea,
+    input[type="file"] {
       width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 13px;
-      font-size: 16px;
-      outline: none;
+      padding: 13px;
+      border: 1px solid #ccc;
+      border-radius: 9px;
+      font-size: 15px;
       font-family: inherit;
     }
 
     textarea {
-      min-height: 95px;
+      min-height: 100px;
       resize: vertical;
     }
 
-    input:focus, textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(20, 108, 67, 0.10);
+    .input-group {
+      margin-bottom: 18px;
     }
 
-    .options {
-      display: grid;
-      gap: 10px;
-    }
-
-    .option-card {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      margin: 0;
-      padding: 13px;
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      cursor: pointer;
-      background: #fff;
-      font-weight: 600;
-    }
-
-    .option-card:has(input:checked) {
-      border-color: var(--primary);
-      background: #f0fdf4;
-    }
-
-    .option-card input {
-      accent-color: var(--primary);
-    }
-
-    .method-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .method-card {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 0;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      cursor: pointer;
-      font-weight: 700;
-      background: #fff;
-    }
-
-    .method-card:has(input:checked) {
-      border-color: var(--primary);
-      background: #f0fdf4;
-    }
-
-    .method-card input {
-      accent-color: var(--primary);
-    }
-
-    .file {
-      width: 100%;
-      border: 1px dashed #aab4c3;
-      border-radius: 12px;
-      padding: 14px;
-      background: #fafbfc;
+    .required {
+      color: #d00;
     }
 
     .hint {
-      color: var(--muted);
-      font-size: 12px;
+      display: block;
       margin-top: 6px;
+      color: #777;
+      font-size: 13px;
     }
 
-    button {
+    /* Submit */
+
+    .submit-button {
       width: 100%;
-      margin-top: 22px;
-      border: 0;
-      border-radius: 11px;
-      padding: 13px 16px;
-      background: var(--primary);
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #111;
       color: white;
-      font-weight: 750;
-      font-size: 16px;
+      font-size: 17px;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    button:hover { background: var(--primary-dark); }
-    button:disabled { opacity: .65; cursor: wait; }
-
-    .message {
-      display: none;
-      margin-top: 16px;
-      padding: 12px 13px;
-      border-radius: 10px;
-      line-height: 1.45;
-      font-size: 14px;
+    .submit-button:hover {
+      opacity: 0.9;
     }
 
-    .success {
-      background: var(--success-bg);
-      color: var(--success);
+    .submit-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
-    .error {
-      background: var(--error-bg);
-      color: var(--error);
-    }
-
-    .small-print {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-      margin-top: 15px;
-      text-align: center;
-    }
-
-    .loading {
+    .confirmation {
       display: none;
       text-align: center;
-      color: var(--muted);
-      margin-top: 12px;
-      font-size: 13px;
+      padding: 25px 10px;
+    }
+
+    .confirmation.show {
+      display: block;
+    }
+
+    .confirmation-icon {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .confirmation h2 {
+      margin-bottom: 10px;
+    }
+
+    .confirmation p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .error-message {
+      display: none;
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #ffecec;
+      color: #b00000;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .payment-methods {
+        grid-template-columns: 1fr;
+      }
+
+      .package-label {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .account-row {
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .account-value {
+        text-align: left;
+      }
     }
   </style>
 </head>
 
 <body>
-  <main class="wrap">
-    <section class="card">
-      <h1 id="groupName">Paid WhatsApp Group</h1>
-      <p class="intro">
-        Complete your payment, then submit your WhatsApp number and payment screenshot.
-        Your submission will be reviewed privately.
-      </p>
 
-      <div class="payment-box">
-        <div class="payment-row">
-          <span class="label">Easypaisa account</span>
-          <span class="value" id="easypaisaAccount">Loading...</span>
-        </div>
-        <div class="payment-row">
-          <span class="label">JazzCash account</span>
-          <span class="value" id="jazzcashAccount">Loading...</span>
-        </div>
-        <div class="payment-row">
-          <span class="label">Account name</span>
-          <span class="value" id="accountName">Loading...</span>
-        </div>
+  <div class="container">
+
+    <div class="card">
+
+      <div class="header">
+        <h1>Payment Verification</h1>
+        <p>
+          Select your package, make the payment, and submit your
+          payment screenshot for verification.
+        </p>
       </div>
 
+
       <form id="paymentForm">
-        <label>Payment option *</label>
-        <div id="paymentOptions" class="options"></div>
 
-        <label>Payment method *</label>
-        <div class="method-grid">
-          <label class="method-card">
-            <input type="radio" name="paymentMethod" value="Easypaisa" required>
-            <span>Easypaisa</span>
-          </label>
-          <label class="method-card">
-            <input type="radio" name="paymentMethod" value="JazzCash" required>
-            <span>JazzCash</span>
-          </label>
+
+        <!-- ============================= -->
+        <!-- PACKAGE -->
+        <!-- ============================= -->
+
+        <div class="section">
+
+          <div class="section-title">
+            1. Select Package
+          </div>
+
+          <div class="packages">
+
+            <div class="package-option">
+              <input
+                type="radio"
+                id="videosGroup"
+                name="package"
+                value="Videos Group"
+                required
+              >
+
+              <label
+                class="package-label"
+                for="videosGroup"
+              >
+                <span class="package-name">
+                  Videos Group
+                </span>
+
+                <span class="package-price">
+                  Rs 400
+                </span>
+              </label>
+            </div>
+
+
+            <div class="package-option">
+              <input
+                type="radio"
+                id="megaLink"
+                name="package"
+                value="Mega Link"
+              >
+
+              <label
+                class="package-label"
+                for="megaLink"
+              >
+                <span class="package-name">
+                  Mega Link
+                </span>
+
+                <span class="package-price">
+                  Rs 500
+                </span>
+              </label>
+            </div>
+
+
+            <div class="package-option">
+              <input
+                type="radio"
+                id="videosMega"
+                name="package"
+                value="Videos Group + Mega Link"
+              >
+
+              <label
+                class="package-label"
+                for="videosMega"
+              >
+                <span class="package-name">
+                  Videos Group + Mega Link
+                </span>
+
+                <span class="package-price">
+                  Rs 700
+                </span>
+              </label>
+            </div>
+
+          </div>
+
         </div>
 
-        <label for="anyMessage">Any message (optional)</label>
-        <textarea id="anyMessage" maxlength="1000" placeholder="Write any message for us..."></textarea>
 
-        <label for="whatsapp">WhatsApp number *</label>
-        <input
-          id="whatsapp"
-          type="tel"
-          maxlength="20"
-          required
-          placeholder="+923001234567"
-          autocomplete="tel"
-        >
-        <div class="hint">Example: +923001234567 or 03001234567</div>
+        <!-- ============================= -->
+        <!-- PAYMENT METHOD -->
+        <!-- ============================= -->
 
-        <label for="screenshot">Payment screenshot *</label>
-        <input
-          id="screenshot"
-          class="file"
-          type="file"
-          accept="image/jpeg,image/png,image/webp,application/pdf"
-          required
-        >
-        <div class="hint">JPG, PNG, WEBP or PDF — maximum 5 MB.</div>
+        <div class="section">
 
-        <button id="submitBtn" type="submit">Submit Payment</button>
-        <div id="loading" class="loading">Uploading and submitting securely…</div>
-        <div id="message" class="message"></div>
+          <div class="section-title">
+            2. Select Payment Method
+          </div>
 
-        <div class="small-print">
-          Your screenshot and WhatsApp number are stored privately for payment verification.
-          They are not posted to the WhatsApp group.
+          <div class="payment-methods">
+
+            <div class="payment-option">
+
+              <input
+                type="radio"
+                id="easypaisa"
+                name="paymentMethod"
+                value="Easypaisa"
+                required
+              >
+
+              <label
+                class="payment-label"
+                for="easypaisa"
+              >
+                Easypaisa
+              </label>
+
+            </div>
+
+
+            <div class="payment-option">
+
+              <input
+                type="radio"
+                id="jazzcash"
+                name="paymentMethod"
+                value="JazzCash"
+              >
+
+              <label
+                class="payment-label"
+                for="jazzcash"
+              >
+                JazzCash
+              </label>
+
+            </div>
+
+          </div>
+
+
+          <!-- Account information -->
+
+          <div
+            id="accountBox"
+            class="account-box"
+          >
+
+            <div class="account-row">
+
+              <span class="account-label">
+                Payment Method
+              </span>
+
+              <span
+                id="displayMethod"
+                class="account-value"
+              >
+              </span>
+
+            </div>
+
+
+            <div class="account-row">
+
+              <span class="account-label">
+                Account Name
+              </span>
+
+              <span
+                id="displayName"
+                class="account-value"
+              >
+                M Bin Faisal
+              </span>
+
+            </div>
+
+
+            <div class="account-row">
+
+              <span class="account-label">
+                Account Number
+              </span>
+
+              <span
+                id="displayNumber"
+                class="account-value"
+              >
+              </span>
+
+            </div>
+
+
+            <div class="account-row">
+
+              <span class="account-label">
+                Amount to Pay
+              </span>
+
+              <span
+                id="displayAmount"
+                class="account-value amount"
+              >
+                Rs 0
+              </span>
+
+            </div>
+
+          </div>
+
         </div>
+
+
+        <!-- ============================= -->
+        <!-- CUSTOMER INFORMATION -->
+        <!-- ============================= -->
+
+        <div class="section">
+
+          <div class="section-title">
+            3. Your Information
+          </div>
+
+
+          <div class="input-group">
+
+            <label
+              class="input-label"
+              for="whatsappNumber"
+            >
+              WhatsApp Number
+              <span class="required">*</span>
+            </label>
+
+            <input
+              type="tel"
+              id="whatsappNumber"
+              name="whatsappNumber"
+              placeholder="03XXXXXXXXX"
+              required
+            >
+
+          </div>
+
+
+          <div class="input-group">
+
+            <label
+              class="input-label"
+              for="anyMessage"
+            >
+              Any Message
+            </label>
+
+            <textarea
+              id="anyMessage"
+              name="anyMessage"
+              placeholder="Optional message..."
+            ></textarea>
+
+          </div>
+
+
+          <div class="input-group">
+
+            <label
+              class="input-label"
+              for="paymentScreenshot"
+            >
+              Payment Screenshot
+              <span class="required">*</span>
+            </label>
+
+            <input
+              type="file"
+              id="paymentScreenshot"
+              name="paymentScreenshot"
+              accept="image/jpeg,image/png,image/webp"
+              required
+            >
+
+            <span class="hint">
+              JPG, PNG or WebP. Maximum 10 MB.
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- ============================= -->
+        <!-- ERROR -->
+        <!-- ============================= -->
+
+        <div
+          id="errorMessage"
+          class="error-message"
+        ></div>
+
+
+        <!-- ============================= -->
+        <!-- SUBMIT -->
+        <!-- ============================= -->
+
+        <button
+          type="submit"
+          id="submitButton"
+          class="submit-button"
+        >
+          Submit Payment
+        </button>
+
       </form>
-    </section>
-  </main>
+
+
+      <!-- ============================= -->
+      <!-- CONFIRMATION -->
+      <!-- ============================= -->
+
+      <div
+        id="confirmation"
+        class="confirmation"
+      >
+
+        <div class="confirmation-icon">
+          ✓
+        </div>
+
+        <h2>
+          Payment Submitted
+        </h2>
+
+        <p>
+          Your payment details have been submitted for verification.
+          Please wait for confirmation on WhatsApp.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
 
   <script>
-    const form = document.getElementById('paymentForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loading = document.getElementById('loading');
-    const message = document.getElementById('message');
 
-    function showMessage(text, type) {
-      message.textContent = text;
-      message.className = 'message ' + type;
-      message.style.display = 'block';
+    // =====================================================
+    // GOOGLE APPS SCRIPT WEB APP URL
+    // =====================================================
+
+    const GOOGLE_SCRIPT_URL =
+      "https://script.google.com/macros/s/AKfycbwqw9mmvC7fbpfcHfU26Twp5y8uIMIVYJ8G0vbvAAsOVMmIPEgJW1yG8vfrRzYCEPnpHA/exec";
+
+
+    // =====================================================
+    // PACKAGE PRICES
+    // =====================================================
+
+    const packagePrices = {
+
+      "Videos Group": 400,
+
+      "Mega Link": 500,
+
+      "Videos Group + Mega Link": 700
+
+    };
+
+
+    // =====================================================
+    // PAYMENT ACCOUNT INFORMATION
+    // =====================================================
+
+    const paymentAccounts = {
+
+      "Easypaisa": {
+        name: "M Bin Faisal",
+        number: "03434092499"
+      },
+
+      "JazzCash": {
+        name: "M Bin Faisal",
+        number: "03135547255"
+      }
+
+    };
+
+
+    // =====================================================
+    // ELEMENTS
+    // =====================================================
+
+    const form =
+      document.getElementById("paymentForm");
+
+    const accountBox =
+      document.getElementById("accountBox");
+
+    const displayMethod =
+      document.getElementById("displayMethod");
+
+    const displayName =
+      document.getElementById("displayName");
+
+    const displayNumber =
+      document.getElementById("displayNumber");
+
+    const displayAmount =
+      document.getElementById("displayAmount");
+
+    const submitButton =
+      document.getElementById("submitButton");
+
+    const errorMessage =
+      document.getElementById("errorMessage");
+
+    const confirmation =
+      document.getElementById("confirmation");
+
+
+    // =====================================================
+    // UPDATE PAYMENT INFORMATION
+    // =====================================================
+
+    function updatePaymentInformation() {
+
+      const selectedPackage =
+        document.querySelector(
+          'input[name="package"]:checked'
+        );
+
+      const selectedMethod =
+        document.querySelector(
+          'input[name="paymentMethod"]:checked'
+        );
+
+
+      let amount = 0;
+
+      if (selectedPackage) {
+
+        amount =
+          packagePrices[
+            selectedPackage.value
+          ];
+
+      }
+
+
+      if (selectedMethod) {
+
+        const method =
+          selectedMethod.value;
+
+        const account =
+          paymentAccounts[method];
+
+
+        displayMethod.textContent =
+          method;
+
+        displayName.textContent =
+          account.name;
+
+        displayNumber.textContent =
+          account.number;
+
+        displayAmount.textContent =
+          "Rs " + amount;
+
+        accountBox.classList.add("show");
+
+      } else {
+
+        accountBox.classList.remove("show");
+
+      }
+
     }
 
-    function setBusy(busy) {
-      submitBtn.disabled = busy;
-      loading.style.display = busy ? 'block' : 'none';
-    }
 
-    function loadConfig() {
-      google.script.run
-        .withSuccessHandler(cfg => {
-          document.getElementById('easypaisaAccount').textContent = cfg.easypaisaAccount;
-          document.getElementById('jazzcashAccount').textContent = cfg.jazzcashAccount;
-          document.getElementById('accountName').textContent = cfg.accountName;
-          document.getElementById('groupName').textContent = cfg.groupName;
-          document.title = cfg.groupName + ' - Payment';
+    // =====================================================
+    // PACKAGE CHANGE
+    // =====================================================
 
-          const options = document.getElementById('paymentOptions');
-          options.innerHTML = cfg.paymentOptions.map((option, index) => `
-            <label class="option-card">
-              <input type="radio" name="paymentOption" value="${option.id}" ${index === 0 ? 'required' : ''}>
-              <span>${option.label} — PKR ${option.amount}</span>
-            </label>
-          `).join('');
-        })
-        .withFailureHandler(err => {
-          showMessage(err.message || 'Could not load payment information.', 'error');
-        })
-        .getPublicConfig();
-    }
+    document
+      .querySelectorAll(
+        'input[name="package"]'
+      )
+      .forEach(function(input) {
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      message.style.display = 'none';
+        input.addEventListener(
+          "change",
+          updatePaymentInformation
+        );
 
-      const file = document.getElementById('screenshot').files[0];
-      const whatsapp = document.getElementById('whatsapp').value.trim();
-      const anyMessage = document.getElementById('anyMessage').value.trim();
-      const paymentOption = document.querySelector('input[name="paymentOption"]:checked');
-      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-
-      if (!paymentOption) {
-        showMessage('Please select a payment option.', 'error');
-        return;
-      }
-
-      if (!paymentMethod) {
-        showMessage('Please select Easypaisa or JazzCash.', 'error');
-        return;
-      }
-
-      if (!file) {
-        showMessage('Please select your payment screenshot.', 'error');
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        showMessage('The screenshot must be 5 MB or smaller.', 'error');
-        return;
-      }
-
-      setBusy(true);
-
-      try {
-        const dataUrl = await readFileAsDataURL(file);
-
-        google.script.run
-          .withSuccessHandler(result => {
-            setBusy(false);
-            form.reset();
-            showMessage(
-              result.message + ' Reference: ' + result.submissionId,
-              'success'
-            );
-          })
-          .withFailureHandler(err => {
-            setBusy(false);
-            showMessage(err.message || 'Submission failed. Please try again.', 'error');
-          })
-          .submitPayment({
-            anyMessage: anyMessage,
-            whatsapp: whatsapp,
-            paymentOptionId: paymentOption.value,
-            paymentMethod: paymentMethod.value,
-            fileName: file.name,
-            mimeType: file.type,
-            fileData: dataUrl
-          });
-
-      } catch (err) {
-        setBusy(false);
-        showMessage(err.message || 'Could not read the file.', 'error');
-      }
-    });
-
-    function readFileAsDataURL(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error('Could not read the selected file.'));
-        reader.readAsDataURL(file);
       });
+
+
+    // =====================================================
+    // PAYMENT METHOD CHANGE
+    // =====================================================
+
+    document
+      .querySelectorAll(
+        'input[name="paymentMethod"]'
+      )
+      .forEach(function(input) {
+
+        input.addEventListener(
+          "change",
+          updatePaymentInformation
+        );
+
+      });
+
+
+    // =====================================================
+    // FILE TO BASE64
+    // =====================================================
+
+    function fileToBase64(file) {
+
+      return new Promise(
+        function(resolve, reject) {
+
+          const reader =
+            new FileReader();
+
+
+          reader.onload =
+            function() {
+
+              const result =
+                reader.result;
+
+              const base64 =
+                result.split(",")[1];
+
+              resolve(base64);
+
+            };
+
+
+          reader.onerror =
+            function() {
+
+              reject(
+                new Error(
+                  "Unable to read screenshot."
+                )
+              );
+
+            };
+
+
+          reader.readAsDataURL(file);
+
+        }
+      );
+
     }
 
-    loadConfig();
+
+    // =====================================================
+    // SHOW ERROR
+    // =====================================================
+
+    function showError(message) {
+
+      errorMessage.textContent =
+        message;
+
+      errorMessage.classList.add("show");
+
+    }
+
+
+    // =====================================================
+    // HIDE ERROR
+    // =====================================================
+
+    function hideError() {
+
+      errorMessage.classList.remove(
+        "show"
+      );
+
+    }
+
+
+    // =====================================================
+    // FORM SUBMISSION
+    // =====================================================
+
+    form.addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+        hideError();
+
+
+        // -----------------------------------------------
+        // Selected package
+        // -----------------------------------------------
+
+        const packageInput =
+          document.querySelector(
+            'input[name="package"]:checked'
+          );
+
+
+        if (!packageInput) {
+
+          showError(
+            "Please select a package."
+          );
+
+          return;
+
+        }
+
+
+        const packageName =
+          packageInput.value;
+
+
+        // -----------------------------------------------
+        // Selected payment method
+        // -----------------------------------------------
+
+        const paymentInput =
+          document.querySelector(
+            'input[name="paymentMethod"]:checked'
+          );
+
+
+        if (!paymentInput) {
+
+          showError(
+            "Please select a payment method."
+          );
+
+          return;
+
+        }
+
+
+        const paymentMethod =
+          paymentInput.value;
+
+
+        // -----------------------------------------------
+        // WhatsApp number
+        // -----------------------------------------------
+
+        const whatsappNumber =
+          document
+            .getElementById(
+              "whatsappNumber"
+            )
+            .value
+            .trim();
+
+
+        if (!whatsappNumber) {
+
+          showError(
+            "Please enter your WhatsApp number."
+          );
+
+          return;
+
+        }
+
+
+        // -----------------------------------------------
+        // Any Message
+        // -----------------------------------------------
+
+        const anyMessage =
+          document
+            .getElementById(
+              "anyMessage"
+            )
+            .value
+            .trim();
+
+
+        // -----------------------------------------------
+        // Screenshot
+        // -----------------------------------------------
+
+        const screenshotInput =
+          document.getElementById(
+            "paymentScreenshot"
+          );
+
+
+        const screenshotFile =
+          screenshotInput.files[0];
+
+
+        if (!screenshotFile) {
+
+          showError(
+            "Please upload your payment screenshot."
+          );
+
+          return;
+
+        }
+
+
+        // -----------------------------------------------
+        // Screenshot type
+        // -----------------------------------------------
+
+        const allowedTypes = [
+
+          "image/jpeg",
+
+          "image/png",
+
+          "image/webp"
+
+        ];
+
+
+        if (
+          !allowedTypes.includes(
+            screenshotFile.type
+          )
+        ) {
+
+          showError(
+            "Only JPG, PNG and WebP screenshots are allowed."
+          );
+
+          return;
+
+        }
+
+
+        // -----------------------------------------------
+        // Screenshot size
+        // -----------------------------------------------
+
+        if (
+          screenshotFile.size >
+          10 * 1024 * 1024
+        ) {
+
+          showError(
+            "Screenshot must be 10 MB or smaller."
+          );
+
+          return;
+
+        }
+
+
+        // -----------------------------------------------
+        // Disable button
+        // -----------------------------------------------
+
+        submitButton.disabled = true;
+
+        submitButton.textContent =
+          "Submitting...";
+
+
+        try {
+
+          // ---------------------------------------------
+          // Convert screenshot
+          // ---------------------------------------------
+
+          const screenshotBase64 =
+            await fileToBase64(
+              screenshotFile
+            );
+
+
+          // ---------------------------------------------
+          // Create submission
+          // ---------------------------------------------
+
+          const submission = {
+
+            package:
+              packageName,
+
+            paymentMethod:
+              paymentMethod,
+
+            whatsappNumber:
+              whatsappNumber,
+
+            anyMessage:
+              anyMessage,
+
+            screenshot: {
+
+              name:
+                screenshotFile.name,
+
+              type:
+                screenshotFile.type,
+
+              data:
+                screenshotBase64
+
+            }
+
+          };
+
+
+          // ---------------------------------------------
+          // Send to Google Apps Script
+          // ---------------------------------------------
+
+          const response =
+            await fetch(
+              GOOGLE_SCRIPT_URL,
+              {
+
+                method: "POST",
+
+                headers: {
+
+                  "Content-Type":
+                    "text/plain;charset=utf-8"
+
+                },
+
+                body:
+                  JSON.stringify(
+                    submission
+                  )
+
+              }
+            );
+
+
+          const result =
+            await response.json();
+
+
+          // ---------------------------------------------
+          // Check result
+          // ---------------------------------------------
+
+          if (!result.success) {
+
+            throw new Error(
+              result.message ||
+              "Submission failed."
+            );
+
+          }
+
+
+          // ---------------------------------------------
+          // SUCCESS
+          // ---------------------------------------------
+
+          form.style.display =
+            "none";
+
+          confirmation.classList.add(
+            "show"
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            error
+          );
+
+          showError(
+            error.message ||
+            "Unable to submit payment. Please try again."
+          );
+
+
+          submitButton.disabled =
+            false;
+
+          submitButton.textContent =
+            "Submit Payment";
+
+        }
+
+      }
+    );
+
   </script>
+
 </body>
 </html>
+```
